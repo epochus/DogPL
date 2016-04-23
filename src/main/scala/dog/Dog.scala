@@ -11,7 +11,9 @@ class Dog {
 
   var pc = 1
   var mouth = 0
-  var plate1 = 0
+  var dish1 = 0
+  var dish2 = 0
+  var dish3 = 0
 
   var lines = new mutable.HashMap[Int, DogLine]
 
