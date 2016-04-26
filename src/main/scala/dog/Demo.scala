@@ -6,9 +6,12 @@ package dog
 object Demo extends Dog {
 
   def main(args: Array[String]) {
-    fetch (4)
-    fetch (2)
-    show
+    bowl1 take()
+    bark("dsds")
+    take
+    2 take()
+
+
 
     good boy
   }

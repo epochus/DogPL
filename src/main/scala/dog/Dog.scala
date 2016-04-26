@@ -131,7 +131,7 @@ class Dog {
     }
   }
 
-  def take: Unit = {
+  def take = {
     commands(pc) = PromptUser(pc)
     pc += 1
   }
@@ -194,7 +194,7 @@ class Dog {
     }
   }
 
-/*
+
   // Repetitive ... Not sure of a better way to do it
   case class Repeat(num: Int) {
 
@@ -206,7 +206,7 @@ class Dog {
       }
     }
 
-    def take: Unit = {
+    def take() = {
       commands(pc) = PromptUser(pc, num)
       pc += 1
     }
@@ -236,7 +236,7 @@ class Dog {
 
   }
 
-  //implicit def numToRepeat(num: Int) = Repeat(num)
-  //implicit def varToRepeat(num: Bowl) = Repeat(num.amount)
-  */
+  implicit def numToRepeat(num: Int) = Repeat(num)
+  implicit def varToRepeat(num: Bowl) = Repeat(num.amount)
+
 }
