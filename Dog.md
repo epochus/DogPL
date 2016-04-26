@@ -1,8 +1,10 @@
 Dog Documentation
 ==================
+In this language, imagine yourself as a person who can command a dog. Numbers (Ints, Doubles) are represented as dog treats. Dog treats can be stored in your dog's mouth, in **bowl**s, **safe**s, and the **floor**. There are ten bowls and ten safes with 0...9 appended at the end. The floor can hold as many dog treats as you want. When you get a dog treat from the floor, a random number of dog treats that isn't zero is chosen from the floor. 
 
 ### Command List
-
+Each command must be separated by a newline.
+Any command can be preceded by a number or a variable (bowl, safe, or floor) which tells your dog how many times to execute that command.
 Replace **X** with either bowlX, safeX, floor, or a number.
 Replace **V** with either bowlX, safeX, or floor.
 Square brackets means the argument is optional.
