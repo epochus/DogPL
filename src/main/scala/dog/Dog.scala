@@ -35,29 +35,22 @@ class Dog {
     def getVal: Int
     def setVal(amt: Int): Unit
   }
-  case class Plate(index: Int, amount: Int) extends Container {
+  case class Bowl(index: Int, amount: Int) extends Container {
     def getVal(): Int = plates(index)
     def setVal(amt: Int) = plates(index) = amt
   }
 
-  /*
-  case class Bowl(index: Int, name: String) extends Container {
-    // Not implemented yet
-  }
-  */
-
   // Only holds integers
-  var plate0 = new Plate(0, 0)
-  var plate1 = new Plate(1, 0)
-  var plate2 = new Plate(2, 0)
-  var plate3 = new Plate(3, 0)
-  var plate4 = new Plate(4, 0)
-  var plate5 = new Plate(5, 0)
-  var plate6 = new Plate(6, 0)
-  var plate7 = new Plate(7, 0)
-  var plate8 = new Plate(8, 0)
-  var plate9 = new Plate(9, 0)
-
+  var plate0 = new Bowl(0, 0)
+  var plate1 = new Bowl(1, 0)
+  var plate2 = new Bowl(2, 0)
+  var plate3 = new Bowl(3, 0)
+  var plate4 = new Bowl(4, 0)
+  var plate5 = new Bowl(5, 0)
+  var plate6 = new Bowl(6, 0)
+  var plate7 = new Bowl(7, 0)
+  var plate8 = new Bowl(8, 0)
+  var plate9 = new Bowl(9, 0)
 
   /*
    * Runtime evaluator
@@ -65,7 +58,6 @@ class Dog {
   private def evaluate(line: Int): Unit = {
     commands(line) match {
       case PrintString(_, s: String, r: Int) =>
-        print("pol")
         for (itr <- 1 to r)
           print(s)
         evaluate(line + 1)
@@ -135,10 +127,11 @@ class Dog {
     def apply(line: String): Unit = {
       commands(pc) = PrintString(pc, line)
       pc += 1
+      //print("not here")
     }
   }
 
-  def take = {
+  def take: Unit = {
     commands(pc) = PromptUser(pc)
     pc += 1
   }
@@ -148,7 +141,7 @@ class Dog {
     pc += 1
   }
 
-  def give = {
+  def give: Unit = {
     commands(pc) = GiveAmt(pc)
     pc += 1
   }
@@ -159,7 +152,7 @@ class Dog {
       pc += 1
     }
 
-    def apply(x: Plate) = {
+    def apply(x: Bowl) = {
       commands(pc) = AddAmt(pc, x.amount, 2)
       x.setVal(0)
       pc += 1
@@ -201,6 +194,7 @@ class Dog {
     }
   }
 
+/*
   // Repetitive ... Not sure of a better way to do it
   case class Repeat(num: Int) {
 
@@ -208,10 +202,11 @@ class Dog {
       def apply(str: String): Unit = {
         commands(pc) = PrintString(pc, str, num)
         pc += 1
+        //print("1")
       }
     }
 
-    def take = {
+    def take: Unit = {
       commands(pc) = PromptUser(pc, num)
       pc += 1
     }
@@ -241,6 +236,7 @@ class Dog {
 
   }
 
-  implicit def numToRepeat(num: Int) = Repeat(num)
-  implicit def varToRepeat(num: Plate) = Repeat(num.amount)
+  //implicit def numToRepeat(num: Int) = Repeat(num)
+  //implicit def varToRepeat(num: Plate) = Repeat(num.amount)
+  */
 }
