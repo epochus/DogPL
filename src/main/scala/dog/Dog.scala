@@ -23,7 +23,7 @@ class Dog {
   var pc = 0
   var commands = new HashMap[Int, DogLine]
   var labels = new HashMap[String, Int]
-  var plates = new Array[Int](10)
+  var bowls = new Array[Int](10)
 
   // plate -> safe
   // loop -> routine
@@ -36,21 +36,21 @@ class Dog {
     def setVal(amt: Int): Unit
   }
   case class Bowl(index: Int, amount: Int) extends Container {
-    def getVal(): Int = plates(index)
-    def setVal(amt: Int) = plates(index) = amt
+    def getVal(): Int = bowls(index)
+    def setVal(amt: Int) = bowls(index) = amt
   }
 
   // Only holds integers
-  var plate0 = new Bowl(0, 0)
-  var plate1 = new Bowl(1, 0)
-  var plate2 = new Bowl(2, 0)
-  var plate3 = new Bowl(3, 0)
-  var plate4 = new Bowl(4, 0)
-  var plate5 = new Bowl(5, 0)
-  var plate6 = new Bowl(6, 0)
-  var plate7 = new Bowl(7, 0)
-  var plate8 = new Bowl(8, 0)
-  var plate9 = new Bowl(9, 0)
+  var bowl0 = new Bowl(0, 0)
+  var bowl1 = new Bowl(1, 0)
+  var bowl2 = new Bowl(2, 0)
+  var bowl3 = new Bowl(3, 0)
+  var bowl4 = new Bowl(4, 0)
+  var bowl5 = new Bowl(5, 0)
+  var bowl6 = new Bowl(6, 0)
+  var bowl7 = new Bowl(7, 0)
+  var bowl8 = new Bowl(8, 0)
+  var bowl9 = new Bowl(9, 0)
 
   /*
    * Runtime evaluator
@@ -227,7 +227,7 @@ class Dog {
         pc += 1
       }
 
-      def apply(x: Plate) = {
+      def apply(x: Bowl) = {
         commands(pc) = AddAmt(pc, x.amount, num)
         x.setVal(0)
         pc += 1
@@ -237,6 +237,6 @@ class Dog {
   }
 
   //implicit def numToRepeat(num: Int) = Repeat(num)
-  //implicit def varToRepeat(num: Plate) = Repeat(num.amount)
+  //implicit def varToRepeat(num: Bowl) = Repeat(num.amount)
   */
 }
