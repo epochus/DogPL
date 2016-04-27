@@ -1,5 +1,5 @@
 package dog
-import scala.collection.mutable.HashMap
+import scala.collection.mutable.{ArrayBuffer, HashMap}
 
 /**
   * Dog Programming Language
@@ -10,10 +10,10 @@ class Dog {
   case class PromptUser(pos: Int, r: Int = 1) extends DogLine // take
   case class ShowAmt(pos: Int, r: Int = 1) extends DogLine // show
   case class GiveAmt(pos: Int, r: Int = 1) extends DogLine // give
-  case class AddAmt(pos: Int, i: Int, r: Int = 1) extends DogLine // fetch X
+  case class AddAmt(pos: Int, i: Double, r: Int = 1) extends DogLine // fetch X
   case class DropAmt(pos: Int, c: Container, r: Int = 1) extends DogLine // drop V
   case class PickUpAmt(pos: Int, c: Container, r: Int = 1) extends DogLine // pickup V
-  case class SubAmt(pos: Int, i: Int = mouth, r: Int = 1) extends DogLine // eat [X]
+  case class SubAmt(pos: Int, i: Double = mouth, r: Int = 1) extends DogLine // eat [X]
   case class ClearAmt(pos: Int, c: Container, r: Int = 1) extends DogLine// clear V
   case class Break(pos: Int) extends DogLine // die
   case class Label(pos: Int, s: String) extends DogLine // label label_name
@@ -23,21 +23,45 @@ class Dog {
   var pc = 0
   var commands = new HashMap[Int, DogLine]
   var labels = new HashMap[String, Int]
-  var bowls = new Array[Int](10)
+  var bowls = new Array[Double](10)
 
   // plate -> safe
   // loop -> routine
   // die -> stop (equivalent to break statement)
 
-  var mouth = 0
+  var mouth: Double = 0
+  var floor = new Floor(new ArrayBuffer[Double](10))
 
   abstract class Container {
-    def getVal: Int
-    def setVal(amt: Int): Unit
+    def getVal: Double
+    def setVal(amt: Double): Unit
   }
-  case class Bowl(index: Int, amount: Int) extends Container {
-    def getVal(): Int = bowls(index)
-    def setVal(amt: Int) = bowls(index) = amt
+  case class Floor(arrayBuffer: ArrayBuffer[Double]) extends Container {
+    def getVal: Double = {
+      val random = scala.util.Random
+
+      if (arrayBuffer.length == 0) {
+        return (random.nextDouble() * 10) + 1
+      }
+
+      val index = random.nextInt(arrayBuffer.length)
+      val returnVal = arrayBuffer(index)
+
+      if (returnVal == 0) {
+        return (random.nextDouble() * 10) + 1
+      }
+
+      arrayBuffer -= returnVal
+
+      return returnVal
+    }
+    def setVal(amt:Double): Unit = {
+      arrayBuffer += amt
+    }
+  }
+  case class Bowl(index: Int, amount: Double) extends Container {
+    def getVal(): Double = bowls(index)
+    def setVal(amt: Double) = bowls(index) = amt
   }
 
   // Only holds integers
@@ -79,25 +103,32 @@ class Dog {
         }
         evaluate(line + 1)
 
-      case AddAmt(_, num: Int, r: Int) =>
+      case AddAmt(_, num: Double, r: Int) =>
         for (itr <- 1 to r)
           mouth += num
         evaluate(line + 1)
 
       case DropAmt(_, c: Container, r: Int) =>
-        for (itr <- 1 to r) {
-          val total = c.getVal + mouth
+        if (c.isInstanceOf[Floor]) {
+          c.setVal(mouth)
           mouth = 0
-          c.setVal(total)
+        } else {
+          for (itr <- 1 to r) {
+            val total = c.getVal + mouth
+            mouth = 0
+            c.setVal(total)
+          }
         }
         evaluate(line + 1)
 
       case PickUpAmt(_, c: Container, r: Int) =>
         mouth += c.getVal
-        c.setVal(0)
+        if (!c.isInstanceOf[Floor]) {
+          c.setVal(0)
+        }
         evaluate(line + 1)
 
-      case SubAmt(_, num: Int, r: Int) =>
+      case SubAmt(_, num: Double, r: Int) =>
         for (itr <- 1 to r) {
           mouth -= num
           if (mouth < 0) {
@@ -168,12 +199,12 @@ class Dog {
 
   object pickup {
     def apply(c: Container)= {
-      commands(pc) = DropAmt(pc, c)
+      commands(pc) = PickUpAmt(pc, c)
       pc += 1
     }
   }
 
-  def eat(x: Int = mouth) = {
+  def eat(x: Double = mouth) = {
     commands(pc) = SubAmt(pc, x)
     pc += 1
   }
@@ -184,6 +215,7 @@ class Dog {
       pc += 1
     }
   }
+
 
 
   // The line "good boy" executes the program and cannot be omitted
@@ -237,6 +269,7 @@ class Dog {
   }
 
   implicit def numToRepeat(num: Int) = Repeat(num)
-  implicit def varToRepeat(num: Bowl) = Repeat(num.amount)
+  implicit def varToRepeat(num: Bowl) = Repeat(Math.floor(num.amount).toInt)
+  implicit def funcToRepeat(func: Unit) = Repeat(1)
 
 }
