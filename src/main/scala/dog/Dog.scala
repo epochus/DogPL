@@ -1,5 +1,6 @@
 package dog
 import scala.collection.mutable.{ArrayBuffer, HashMap}
+import java.text.DecimalFormat
 
 /**
   * Dog Programming Language
@@ -11,9 +12,11 @@ class Dog {
   case class ShowAmt(pos: Int, r: Int = 1) extends DogLine // show
   case class GiveAmt(pos: Int, r: Int = 1) extends DogLine // give
   case class AddAmt(pos: Int, i: Double, r: Int = 1) extends DogLine // fetch X
+  case class AddAmtc(pos: Int, c: Container, r: Int = 1) extends DogLine // fetch X
   case class DropAmt(pos: Int, c: Container, r: Int = 1) extends DogLine // drop V
   case class PickUpAmt(pos: Int, c: Container, r: Int = 1) extends DogLine // pickup V
-  case class SubAmt(pos: Int, i: Double = mouth, r: Int = 1) extends DogLine // eat [X]
+  case class SubAmt(pos: Int, i: Double, r: Int = 1) extends DogLine // eat [X]
+  case class SubAmtc(pos: Int, c: Container, r: Int = 1) extends DogLine // eat [X]
   case class ClearAmt(pos: Int, c: Container, r: Int = 1) extends DogLine// clear V
   case class Break(pos: Int) extends DogLine // die
   case class Label(pos: Int, s: String) extends DogLine // label label_name
@@ -92,13 +95,15 @@ class Dog {
         evaluate(line + 1)
 
       case ShowAmt(_, r: Int) =>
+        var result = new DecimalFormat("0.###").format(mouth)
         for (itr <- 1 to r)
-          print(mouth)
+          print(result)
         evaluate(line + 1)
 
       case GiveAmt(_, r: Int) =>
+        var result = new DecimalFormat("0.###").format(mouth)
         for (itr <- 1 to r) {
-          print(mouth)
+          print(result)
           mouth = 0
         }
         evaluate(line + 1)
@@ -106,6 +111,11 @@ class Dog {
       case AddAmt(_, num: Double, r: Int) =>
         for (itr <- 1 to r)
           mouth += num
+        evaluate(line + 1)
+
+      case AddAmtc(_, c: Container, r: Int) =>
+        for (itr <- 1 to r)
+          mouth += c.getVal
         evaluate(line + 1)
 
       case DropAmt(_, c: Container, r: Int) =>
@@ -131,6 +141,15 @@ class Dog {
       case SubAmt(_, num: Double, r: Int) =>
         for (itr <- 1 to r) {
           mouth -= num
+          if (mouth < 0) {
+            // handle error
+          }
+        }
+        evaluate(line + 1)
+
+      case SubAmtc(_, c: Container, r: Int) =>
+        for (itr <- 1 to r) {
+          mouth -= c.getVal
           if (mouth < 0) {
             // handle error
           }
@@ -183,9 +202,8 @@ class Dog {
       pc += 1
     }
 
-    def apply(x: Bowl) = {
-      commands(pc) = AddAmt(pc, x.amount, 2)
-      x.setVal(0)
+    def apply(c: Bowl) = {
+      commands(pc) = AddAmtc(pc, c, 1)
       pc += 1
     }
   }
@@ -204,10 +222,18 @@ class Dog {
     }
   }
 
-  def eat(x: Double = mouth) = {
-    commands(pc) = SubAmt(pc, x)
-    pc += 1
+  object eat {
+    def apply(x: Int) = {
+      commands(pc) = SubAmt(pc, x)
+      pc += 1
+    }
+
+    def apply(c: Bowl) = {
+      commands(pc) = SubAmtc(pc, c, 1)
+      pc += 1
+    }
   }
+
 
   object clear {
     def apply(c: Container)= {
@@ -259,9 +285,20 @@ class Dog {
         pc += 1
       }
 
-      def apply(x: Bowl) = {
-        commands(pc) = AddAmt(pc, x.amount, num)
-        x.setVal(0)
+      def apply(c: Bowl) = {
+        commands(pc) = AddAmtc(pc, c, num)
+        pc += 1
+      }
+    }
+
+    object eat {
+      def apply(x: Int) = {
+        commands(pc) = SubAmt(pc, x, num)
+        pc += 1
+      }
+
+      def apply(c: Bowl) = {
+        commands(pc) = SubAmtc(pc, c, num)
         pc += 1
       }
     }
