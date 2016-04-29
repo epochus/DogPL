@@ -1,6 +1,5 @@
 package dog
 
-import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 import java.text.DecimalFormat
 
@@ -32,10 +31,6 @@ class Dog {
   var labels = new HashMap[String, Int]
   var bowls = new Array[Double](10)
   var safes = new Array[Double](10)
-
-  // plate -> safe
-  // loop -> routine
-  // die -> stop (equivalent to break statement)
 
   var mouth: Double = 0
   var floor = new Floor(new ArrayBuffer[Double](10))
@@ -398,8 +393,6 @@ class Dog {
   }
 
   implicit def numToRepeat(num: Int) = Repeat(num)
-  //implicit def varToRepeat(num: Bowl) = Repeat(Math.floor(num.amount).toInt)
-  // Alternate implementation of varToRepeat to take into account the different actions from the different containers
   implicit def varToRepeat(c: Container) = {
     // NOTE: I'm not sure I implemented this correctly... namely, the case classes part.
     c match {
