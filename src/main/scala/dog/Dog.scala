@@ -29,7 +29,8 @@ class Dog {
   case class Talk(explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
   case class Forget(explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
   case class Count(explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
-
+  case class GetMax(pos: Int, c1: Container, c2: Container, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class GetMin(pos: Int, c1: Container, c2: Container, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
   case class End(num: Int) extends DogLine
 
   var pc = 0
@@ -178,6 +179,16 @@ class Dog {
       commands(pc) = Count(0, this)
       pc += 1
     }
+    def getmax(c1: Container, c2: Container): Unit = {
+      commands(pc) = GetMax(pc, c1, c2, 1, this)
+      pc += 1
+    }
+   
+    def getmin(c1: Container, c2: Container): Unit = {
+      commands(pc) = GetMin(pc, c1, c2, 1, this)
+      pc += 1
+    }
+
   }
 
   case class Floor(arrayBuffer: mutable.ArrayBuffer[Double]) extends Container {
@@ -342,6 +353,15 @@ class Dog {
       commands(pc) = Count(num)
       pc += 1
     }
+    def getmax(c1: Container, c2: Container): Unit = {
+      commands(pc) = GetMax(pc, c1, c2, num)
+      pc += 1
+    }
+
+    def getmin(c1: Container, c2: Container): Unit = {
+      commands(pc) = GetMin(pc, c1, c2, num)
+      pc += 1
+    }
   }
 
   /*
@@ -453,6 +473,14 @@ class Dog {
 
   def count() = {
     commands(pc) = Count()
+    pc += 1
+  }
+  def getmax(c1: Container, c2: Container): Unit = {
+    commands(pc) = GetMax(pc, c1, c2)
+    pc += 1
+  }
+  def getmin(c1: Container, c2: Container): Unit = {
+    commands(pc) = GetMin(pc, c1, c2)
     pc += 1
   }
 
@@ -736,6 +764,58 @@ class Dog {
           for (iter <- 1 to explicitRepeat) {
             mouth += string.length
           }
+        }
+        evaluate(line + 1)
+      
+      case GetMax( _ , c1: Container, c2: Container, explicitRepeat: Int, referencedRepeat: Container) =>
+        
+        if (referencedRepeat.getVal != 0) {
+          for (iter <- 1 to referencedRepeat.repeat()) {
+            if(c1.getVal > c2.getVal) {
+              mouth += c1.getVal
+              c1.setVal(0)
+            }
+            else  {
+              mouth += c2.getVal
+              c2.setVal(0)
+            }
+          }
+        } else {
+          for (itr <- 1 to explicitRepeat)
+            if(c1.getVal > c2.getVal) {
+              mouth += c1.getVal
+              c1.setVal(0)
+            }
+            else  {
+              mouth += c2.getVal
+              c2.setVal(0)
+            }
+        }
+        evaluate(line + 1)
+
+      case GetMin( _ , c1: Container, c2: Container, explicitRepeat: Int, referencedRepeat: Container) =>
+
+        if (referencedRepeat.getVal != 0) {
+          for (iter <- 1 to referencedRepeat.repeat()) {
+            if(c1.getVal < c2.getVal) {
+              mouth += c1.getVal
+              c1.setVal(0)
+            }
+            else  {
+              mouth += c2.getVal
+              c2.setVal(0)
+            }
+          }
+        } else {
+          for (itr <- 1 to explicitRepeat)
+            if(c1.getVal < c2.getVal) {
+              mouth += c1.getVal
+              c1.setVal(0)
+            }
+            else  {
+              mouth += c2.getVal
+              c2.setVal(0)
+            }
         }
         evaluate(line + 1)
 
