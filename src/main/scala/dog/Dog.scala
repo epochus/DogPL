@@ -1,5 +1,6 @@
 package dog
 
+import scala.StringBuilder
 import scala.collection.mutable
 import java.text.DecimalFormat
 
@@ -24,6 +25,8 @@ class Dog {
   case class RoutineS(pos: Int, s: String, referencedRepeat: Container = Empty()) extends DogLine
   case class JumpS(pos: Int, s: String, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
   case class SaveLeftoversN(pos: Int, i: Double, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class Memorize(value: String, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class Talk(explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
 
   case class End(num: Int) extends DogLine
 
@@ -35,6 +38,7 @@ class Dog {
 
   var mouth = 0.0
   var floor = new Floor(new mutable.ArrayBuffer[Double](10))
+  var string = new StringBuilder()
 
   // Only holds doubles
   var bowl0 = new Bowl(0, 0)
@@ -203,7 +207,8 @@ class Dog {
   /*
    * Contains methods that execute when a number precedes a command
    */
-  implicit def numToRepeat(num: Int) = {
+  implicit def numToRepeat(num: Int) = Repeat(num)
+  case class Repeat(num: Int) {
     object bark {
       def apply(line: String): Unit = {
         commands(pc) = BarkS(pc, line, num)
@@ -211,17 +216,17 @@ class Dog {
       }
     }
 
-    def take = {
+    def take() = {
       commands(pc) = PromptUser(pc, num)
       pc += 1
     }
 
-    def show: Unit = {
+    def show(): Unit = {
       commands(pc) = PrintMouth(pc, num)
       pc += 1
     }
 
-    def give: Unit = {
+    def give(): Unit = {
       commands(pc) = ClearMouth(pc, num)
       pc += 1
     }
@@ -276,7 +281,7 @@ class Dog {
       }
     }
 
-    def die: Unit = {
+    def die(): Unit = {
       commands(pc) = Exit(pc)
       pc += 1
     }
@@ -307,7 +312,7 @@ class Dog {
     }
   }
 
-  def take = {
+  def take() = {
     commands(pc) = PromptUser(pc)
     pc += 1
   }
@@ -604,8 +609,12 @@ class Dog {
             evaluate(line + 1)
           }
         } else {
-          val newLine = labels(s)
-          evaluate(newLine + 1)
+          if (explicitRepeat > 0) {
+            val newLine = labels(s)
+            evaluate(newLine + 1)
+          } else {
+            evaluate(line + 1)
+          }
         }
 
       case SaveLeftoversN(_, num: Double, explicitRepeat: Int, referencedRepeat: Container) =>
