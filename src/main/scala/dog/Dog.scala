@@ -28,6 +28,7 @@ class Dog {
   case class Memorize(value: String, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
   case class Talk(explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
   case class Forget(explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class Count(explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
 
   case class End(num: Int) extends DogLine
 
@@ -170,6 +171,11 @@ class Dog {
 
     def forget(): Unit = {
       commands(pc) = Forget(0, this)
+      pc += 1
+    }
+
+    def count(): Unit = {
+      commands(pc) = Count(0, this)
       pc += 1
     }
   }
@@ -331,6 +337,11 @@ class Dog {
       commands(pc) = Forget(num)
       pc += 1
     }
+
+    def count(): Unit = {
+      commands(pc) = Count(num)
+      pc += 1
+    }
   }
 
   /*
@@ -437,6 +448,11 @@ class Dog {
 
   def forget() = {
     commands(pc) = Forget()
+    pc += 1
+  }
+
+  def count() = {
+    commands(pc) = Count()
     pc += 1
   }
 
@@ -707,6 +723,18 @@ class Dog {
         } else {
           for (iter <- 1 to explicitRepeat) {
             string.clear()
+          }
+        }
+        evaluate(line + 1)
+
+      case Count(explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
+          for (iter <- 1 to referencedRepeat.repeat()) {
+            mouth += string.length
+          }
+        } else {
+          for (iter <- 1 to explicitRepeat) {
+            mouth += string.length
           }
         }
         evaluate(line + 1)
