@@ -27,6 +27,7 @@ class Dog {
   case class SaveLeftoversN(pos: Int, i: Double, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
   case class Memorize(value: String, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
   case class Talk(explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class Forget(explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
 
   case class End(num: Int) extends DogLine
 
@@ -162,8 +163,13 @@ class Dog {
       pc += 1
     }
 
-    def speak(varName: String): Unit = {
+    def talk(): Unit = {
       commands(pc) = Talk(0, this)
+      pc += 1
+    }
+
+    def forget(): Unit = {
+      commands(pc) = Forget(0, this)
       pc += 1
     }
   }
@@ -312,12 +318,17 @@ class Dog {
     }
 
     def memorize(value: String): Unit = {
-      commands(pc) = Memorize(value)
+      commands(pc) = Memorize(value, num)
       pc += 1
     }
 
     def talk(): Unit = {
       commands(pc) = Talk(num)
+      pc += 1
+    }
+
+    def forget(): Unit = {
+      commands(pc) = Forget(num)
       pc += 1
     }
   }
@@ -420,7 +431,12 @@ class Dog {
   }
 
   def talk(): Unit = {
-    commands(pc) = Talk(1)
+    commands(pc) = Talk()
+    pc += 1
+  }
+
+  def forget() = {
+    commands(pc) = Forget()
     pc += 1
   }
 
@@ -679,6 +695,18 @@ class Dog {
         } else {
           for (iter <- 1 to explicitRepeat) {
             print(string.toString())
+          }
+        }
+        evaluate(line + 1)
+
+      case Forget(explicitRepeat:Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
+          for (iter <- 1 to referencedRepeat.repeat()) {
+            string.clear()
+          }
+        } else {
+          for (iter <- 1 to explicitRepeat) {
+            string.clear()
           }
         }
         evaluate(line + 1)
