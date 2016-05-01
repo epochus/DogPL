@@ -669,15 +669,16 @@ class Dog {
             string.append(value)
           }
         }
+        evaluate(line + 1)
 
       case Talk(explicitRepeat: Int, referencedRepeat: Container) =>
         if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
-            print(string)
+            print(string.toString())
           }
         } else {
           for (iter <- 1 to explicitRepeat) {
-            print(string)
+            print(string.toString())
           }
         }
         evaluate(line + 1)
