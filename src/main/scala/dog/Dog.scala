@@ -78,62 +78,62 @@ class Dog {
     }
 
     def bark(line: String): Unit = {
-      commands(pc) = BarkS(pc, line, 1, this)
+      commands(pc) = BarkS(pc, line, 0, this)
       pc += 1
     }
 
     def take(): Unit = {
-      commands(pc) = PromptUser(pc, 1, this)
+      commands(pc) = PromptUser(pc, 0, this)
       pc += 1
     }
 
     def show(): Unit = {
-      commands(pc) = PrintMouth(pc, 1, this)
+      commands(pc) = PrintMouth(pc, 0, this)
       pc += 1
     }
 
     def give(): Unit = {
-      commands(pc) = ClearMouth(pc, 1, this)
+      commands(pc) = ClearMouth(pc, 0, this)
       pc += 1
     }
 
     def fetch(x: Int) = {
-      commands(pc) = FetchN(pc, x, 1, this)
+      commands(pc) = FetchN(pc, x, 0, this)
       pc += 1
     }
 
     def fetch(c: Container) = {
-      commands(pc) = FetchV(pc, c, 1, this)
+      commands(pc) = FetchV(pc, c, 0, this)
       pc += 1
     }
 
     def drop(c: Container)= {
-      commands(pc) = DropV(pc, c, 1, this)
+      commands(pc) = DropV(pc, c, 0, this)
       pc += 1
     }
 
     def pickup(c: Container)= {
-      commands(pc) = PickUpV(pc, c, 1, this)
+      commands(pc) = PickUpV(pc, c, 0, this)
       pc += 1
     }
 
     def eat(): Unit = {
-      commands(pc) = EatAll(pc, mouth, 1, this)
+      commands(pc) = EatAll(pc, mouth, 0, this)
       pc += 1
     }
 
     def eat(x: Int) = {
-      commands(pc) = EatN(pc, x, 1, this)
+      commands(pc) = EatN(pc, x, 0, this)
       pc += 1
     }
 
     def eat(c: Container) = {
-      commands(pc) = EatV(pc, c, 1, this)
+      commands(pc) = EatV(pc, c, 0, this)
       pc += 1
     }
 
     def clear(c: Container)= {
-      commands(pc) = ClearV(pc, c, 1, this)
+      commands(pc) = ClearV(pc, c, 0, this)
       pc += 1
     }
 
@@ -148,12 +148,22 @@ class Dog {
     }
 
     def jump(label: String): Unit = {
-      commands(pc) = JumpS(pc, label, 1, this)
+      commands(pc) = JumpS(pc, label, 0, this)
       pc += 1
     }
 
     def saveLeftovers(d: Double): Unit = {
-      commands(pc) = SaveLeftoversN(pc, d, 1, this)
+      commands(pc) = SaveLeftoversN(pc, d, 0, this)
+      pc += 1
+    }
+
+    def memorize(value: String): Unit = {
+      commands(pc) = Memorize(value, 0, this)
+      pc += 1
+    }
+
+    def speak(varName: String): Unit = {
+      commands(pc) = Talk(0, this)
       pc += 1
     }
   }
@@ -300,6 +310,16 @@ class Dog {
       commands(pc) = SaveLeftoversN(pc, d, num)
       pc += 1
     }
+
+    def memorize(value: String): Unit = {
+      commands(pc) = Memorize(value)
+      pc += 1
+    }
+
+    def talk(): Unit = {
+      commands(pc) = Talk(num)
+      pc += 1
+    }
   }
 
   /*
@@ -391,6 +411,16 @@ class Dog {
 
   def saveLeftovers(d: Double): Unit = {
     commands(pc) = SaveLeftoversN(pc, d)
+    pc += 1
+  }
+
+  def memorize(value: String): Unit = {
+    commands(pc) = Memorize(value)
+    pc += 1
+  }
+
+  def talk(): Unit = {
+    commands(pc) = Talk(1)
     pc += 1
   }
 
@@ -625,6 +655,29 @@ class Dog {
         } else {
           for (itr <- 1 to explicitRepeat) {
             mouth %= num
+          }
+        }
+        evaluate(line + 1)
+
+      case Memorize(value: String, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
+          for (iter <- 1 to referencedRepeat.repeat()) {
+            string.append(value)
+          }
+        } else {
+          for (iter <- 1 to explicitRepeat) {
+            string.append(value)
+          }
+        }
+
+      case Talk(explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
+          for (iter <- 1 to referencedRepeat.repeat()) {
+            print(string)
+          }
+        } else {
+          for (iter <- 1 to explicitRepeat) {
+            print(string)
           }
         }
         evaluate(line + 1)
