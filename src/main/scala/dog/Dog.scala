@@ -1,176 +1,41 @@
 package dog
 
-import java.lang.invoke.MethodHandles
-
-import scala.collection.mutable.{ArrayBuffer, HashMap}
+import scala.collection.mutable
 import java.text.DecimalFormat
-
-import scala.math.Equiv
 
 /**
   * Dog Programming Language
   */
 class Dog {
   abstract sealed class DogLine
-  case class PrintString(pos: Int, referencedRepeat: Container, s: String, explicitRepeat: Int = 1) extends DogLine // bark
-  case class PromptUser(pos: Int, referencedRepeat: Container, explicitRepeat: Int = 1) extends DogLine // take
-  case class ShowAmt(pos: Int, referencedRepeat: Container, explicitRepeat: Int = 1) extends DogLine // show
-  case class GiveAmt(pos: Int, referencedRepeat: Container, explicitRepeat: Int = 1) extends DogLine // give
-  case class AddAmt(pos: Int, referencedRepeat: Container, i: Double, explicitRepeat: Int = 1) extends DogLine // fetch X
-  case class AddAmtc(pos: Int, referencedRepeat: Container, c: Container, explicitRepeat: Int = 1) extends DogLine // fetch X
-  case class Modulus(pos: Int, referencedRepeat: Container, i: Double, explicitRepeat: Int = 1) extends DogLine // math X
-  case class DropAmt(pos: Int, referencedRepeat: Container, c: Container, explicitRepeat: Int = 1) extends DogLine // drop V
-  case class PickUpAmt(pos: Int, referencedRepeat: Container, c: Container, explicitRepeat: Int = 1) extends DogLine // pickup V
-  case class SubAmt(pos: Int, referencedRepeat: Container, i: Double, explicitRepeat: Int = 1) extends DogLine // eat [X]
-  case class SubAmta(pos: Int, referencedRepeat: Container, i: Double, explicitRepeat: Int = 1) extends DogLine // eat [X]
-  case class SubAmtc(pos: Int, referencedRepeat: Container, c: Container, explicitRepeat: Int = 1) extends DogLine // eat [X]
-  case class ClearAmt(pos: Int, referencedRepeat: Container, c: Container, explicitRepeat: Int = 1) extends DogLine// clear V
-  case class Exit(pos: Int, referencedRepeat: Container) extends DogLine // die
-  case class Label(pos: Int, referencedRepeat: Container, s: String) extends DogLine // label label_name
-  case class Jump(pos: Int, referencedRepeat: Container, s: String, explicitRepeat: Int = 1) extends DogLine // jump label_name
+  case class BarkS(pos: Int, s: String, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class PromptUser(pos: Int, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class PrintMouth(pos: Int, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class ClearMouth(pos: Int, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class FetchN(pos: Int, i: Double, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class FetchV(pos: Int, c: Container, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class DropV(pos: Int, c: Container, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class PickUpV(pos: Int, c: Container, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class EatAll(pos: Int, i: Double, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class EatN(pos: Int, i: Double, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class EatV(pos: Int, c: Container, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class ClearV(pos: Int, c: Container, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class Exit(pos: Int, referencedRepeat: Container = Empty()) extends DogLine
+  case class RoutineS(pos: Int, s: String, referencedRepeat: Container = Empty()) extends DogLine
+  case class JumpS(pos: Int, s: String, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class SaveLeftoversN(pos: Int, i: Double, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+
   case class End(num: Int) extends DogLine
 
   var pc = 0
-  var commands = new HashMap[Int, DogLine]
-  var labels = new HashMap[String, Int]
+  var commands = new mutable.HashMap[Int, DogLine]
+  var labels = new mutable.HashMap[String, Int]
   var bowls = new Array[Double](10)
   var safes = new Array[Double](10)
 
-  var mouth: Double = 0
-  var floor = new Floor(new ArrayBuffer[Double](10))
+  var mouth = 0.0
+  var floor = new Floor(new mutable.ArrayBuffer[Double](10))
 
-  abstract class Container {
-    def getVal: Double
-    def setVal(amt: Double): Unit
-    def repeat(): Int = {
-      if (getVal <= 0) {
-        return 0
-      } else {
-        return getVal.toInt;
-      }
-    }
-
-    def bark(line: String): Unit = {
-      commands(pc) = PrintString(pc, this, line)
-      pc += 1
-    }
-
-    def take = {
-      commands(pc) = PromptUser(pc, this)
-      pc += 1
-    }
-
-    def show: Unit = {
-      commands(pc) = ShowAmt(pc, this)
-      pc += 1
-    }
-
-    def give: Unit = {
-      commands(pc) = GiveAmt(pc, this)
-      pc += 1
-    }
-
-    def fetch(x: Int) = {
-      commands(pc) = AddAmt(pc, this, x)
-      pc += 1
-    }
-
-    def fetch(c: Container) = {
-      commands(pc) = AddAmtc(pc, this, c, 1)
-      pc += 1
-    }
-
-    def math(d: Double): Unit = {
-      commands(pc) = Modulus(pc, this, d)
-      pc += 1
-    }
-
-    def drop(c: Container)= {
-      commands(pc) = DropAmt(pc, this, c)
-      pc += 1
-    }
-
-    def pickup(c: Container)= {
-      commands(pc) = PickUpAmt(pc, this, c)
-      pc += 1
-    }
-
-    def eat(): Unit = {
-      commands(pc) = SubAmta(pc, this, mouth)
-      pc += 1
-    }
-    def eat(x: Int) = {
-      commands(pc) = SubAmt(pc, this, x)
-      pc += 1
-    }
-    def eat(c: Container) = {
-      commands(pc) = SubAmtc(pc, this, c, 1)
-      pc += 1
-    }
-
-
-    def clear(c: Container)= {
-      commands(pc) = ClearAmt(pc, this, c)
-      pc += 1
-    }
-
-    def label(label: String): Unit = {
-      commands(pc) = Label(pc, this, label)
-      pc += 1
-    }
-
-    def jump(label: String): Unit = {
-      commands(pc) = Jump(pc, this, label)
-      pc += 1
-    }
-
-    def stop: Unit = {
-      commands(pc) = Exit(pc, this)
-      // No point in incrementing pc if this stops the program.
-    }
-  }
-  case class Floor(arrayBuffer: ArrayBuffer[Double]) extends Container {
-    def getVal: Double = {
-      val random = scala.util.Random
-
-      if (arrayBuffer.length == 0) {
-        return (random.nextDouble() * 10) + 1
-      }
-
-      val index = random.nextInt(arrayBuffer.length)
-      val returnVal = arrayBuffer(index)
-
-      if (returnVal == 0) {
-        return (random.nextDouble() * 10) + 1
-      }
-
-      arrayBuffer -= returnVal
-
-      return returnVal
-    }
-    def setVal(amt:Double): Unit = {
-      arrayBuffer += amt
-    }
-
-
-  }
-  case class Bowl(index: Int, amount: Double) extends Container {
-    def getVal(): Double = bowls(index)
-    def setVal(amt: Double) = bowls(index) = amt
-  }
-  case class Safe(index: Int, amount: Double) extends Container {
-    def getVal(): Double = safes(index)
-    def setVal(amt: Double) = safes(index) = amt
-    override def repeat(): Int = {
-      if (getVal <= 0) {
-        return 0
-      } else {
-        return 1
-      }
-    }
-  }
-
-  // NOTE: What's the point of 10 bowls here if we have an array that corresponds to the 10 bowls??
   // Only holds doubles
   var bowl0 = new Bowl(0, 0)
   var bowl1 = new Bowl(1, 0)
@@ -193,13 +58,353 @@ class Dog {
   var safe7 = new Safe(7, 0)
   var safe8 = new Safe(8, 0)
   var safe9 = new Safe(9, 0)
+
   /*
-   * Runtime evaluator
+   * Contains methods that execute when a container variable precedes a command
    */
+  abstract class Container {
+    def getVal: Double
+    def setVal(amt: Double): Unit
+    def repeat(): Int = {
+      if (getVal <= 0) {
+        0
+      } else {
+        getVal.toInt
+      }
+    }
+
+    def bark(line: String): Unit = {
+      commands(pc) = BarkS(pc, line, 1, this)
+      pc += 1
+    }
+
+    def take(): Unit = {
+      commands(pc) = PromptUser(pc, 1, this)
+      pc += 1
+    }
+
+    def show(): Unit = {
+      commands(pc) = PrintMouth(pc, 1, this)
+      pc += 1
+    }
+
+    def give(): Unit = {
+      commands(pc) = ClearMouth(pc, 1, this)
+      pc += 1
+    }
+
+    def fetch(x: Int) = {
+      commands(pc) = FetchN(pc, x, 1, this)
+      pc += 1
+    }
+
+    def fetch(c: Container) = {
+      commands(pc) = FetchV(pc, c, 1, this)
+      pc += 1
+    }
+
+    def drop(c: Container)= {
+      commands(pc) = DropV(pc, c, 1, this)
+      pc += 1
+    }
+
+    def pickup(c: Container)= {
+      commands(pc) = PickUpV(pc, c, 1, this)
+      pc += 1
+    }
+
+    def eat(): Unit = {
+      commands(pc) = EatAll(pc, mouth, 1, this)
+      pc += 1
+    }
+
+    def eat(x: Int) = {
+      commands(pc) = EatN(pc, x, 1, this)
+      pc += 1
+    }
+
+    def eat(c: Container) = {
+      commands(pc) = EatV(pc, c, 1, this)
+      pc += 1
+    }
+
+    def clear(c: Container)= {
+      commands(pc) = ClearV(pc, c, 1, this)
+      pc += 1
+    }
+
+    def die(): Unit = {
+      commands(pc) = Exit(pc, this)
+      pc += 1
+    }
+
+    def routine(label: String): Unit = {
+      commands(pc) = RoutineS(pc, label, this)
+      pc += 1
+    }
+
+    def jump(label: String): Unit = {
+      commands(pc) = JumpS(pc, label, 1, this)
+      pc += 1
+    }
+
+    def saveLeftovers(d: Double): Unit = {
+      commands(pc) = SaveLeftoversN(pc, d, 1, this)
+      pc += 1
+    }
+  }
+
+  case class Floor(arrayBuffer: mutable.ArrayBuffer[Double]) extends Container {
+    def getVal: Double = {
+      val random = scala.util.Random
+
+      if (arrayBuffer.isEmpty) {
+        (random.nextDouble() * 10) + 1
+      }
+
+      val index = random.nextInt(arrayBuffer.length)
+      val returnVal = arrayBuffer(index)
+
+      if (returnVal == 0) {
+        (random.nextDouble() * 10) + 1
+      }
+
+      arrayBuffer -= returnVal
+
+      returnVal
+    }
+    def setVal(amt:Double): Unit = {
+      arrayBuffer += amt
+    }
+  }
+
+  case class Bowl(index: Int, amount: Double) extends Container {
+    def getVal(): Double = bowls(index)
+    def setVal(amt: Double) = bowls(index) = amt
+  }
+
+  case class Safe(index: Int, amount: Double) extends Container {
+    def getVal(): Double = safes(index)
+    def setVal(amt: Double) = safes(index) = amt
+    override def repeat(): Int = {
+      if (getVal <= 0) {
+        0
+      } else {
+        1
+      }
+    }
+  }
+
+  case class Empty() extends Container {
+    def getVal(): Double = 0
+    def setVal(amt: Double): Unit = print("empty")
+  }
+
+  /*
+   * Contains methods that execute when a number precedes a command
+   */
+  implicit def numToRepeat(num: Int) = {
+    object bark {
+      def apply(line: String): Unit = {
+        commands(pc) = BarkS(pc, line, num)
+        pc += 1
+      }
+    }
+
+    def take = {
+      commands(pc) = PromptUser(pc, num)
+      pc += 1
+    }
+
+    def show: Unit = {
+      commands(pc) = PrintMouth(pc, num)
+      pc += 1
+    }
+
+    def give: Unit = {
+      commands(pc) = ClearMouth(pc, num)
+      pc += 1
+    }
+
+    object fetch {
+      def apply(x: Int) = {
+        commands(pc) = FetchN(pc, x, num)
+        pc += 1
+      }
+
+      def apply(c: Container) = {
+        commands(pc) = FetchV(pc, c, num)
+        pc += 1
+      }
+    }
+
+    object drop {
+      def apply(c: Container) = {
+        commands(pc) = DropV(pc, c, num)
+        pc += 1
+      }
+    }
+
+    object pickup {
+      def apply(c: Container) = {
+        commands(pc) = PickUpV(pc, c, num)
+        pc += 1
+      }
+    }
+
+    object eat {
+      def apply(): Unit = {
+        commands(pc) = EatAll(pc, mouth, num)
+        pc += 1
+      }
+
+      def apply(x: Int) = {
+        commands(pc) = EatN(pc, x, num)
+        pc += 1
+      }
+
+      def apply(c: Container) = {
+        commands(pc) = EatV(pc, c, num)
+        pc += 1
+      }
+    }
+
+    object clear {
+      def apply(c: Container) = {
+        commands(pc) = ClearV(pc, c, num)
+        pc += 1
+      }
+    }
+
+    def die: Unit = {
+      commands(pc) = Exit(pc)
+      pc += 1
+    }
+
+    def routine(label: String): Unit = {
+      commands(pc) = RoutineS(pc, label)
+      pc += 1
+    }
+
+    def jump(label: String): Unit = {
+      commands(pc) = JumpS(pc, label, num)
+      pc += 1
+    }
+
+    def saveLeftovers(d: Double): Unit = {
+      commands(pc) = SaveLeftoversN(pc, d, num)
+      pc += 1
+    }
+  }
+
+  /*
+   *  Methods that execute when nothing precedes a command
+   */
+  object bark {
+    def apply(line: String): Unit = {
+      commands(pc) = BarkS(pc, line)
+      pc += 1
+    }
+  }
+
+  def take = {
+    commands(pc) = PromptUser(pc)
+    pc += 1
+  }
+
+  def show(): Unit = {
+    commands(pc) = PrintMouth(pc)
+    pc += 1
+  }
+
+  def give: Unit = {
+    commands(pc) = ClearMouth(pc)
+    pc += 1
+  }
+
+  object fetch {
+    def apply(x: Int) = {
+      commands(pc) = FetchN(pc, x, 1)
+      pc += 1
+    }
+
+    def apply(c: Container) = {
+      commands(pc) = FetchV(pc, c, 1)
+      pc += 1
+    }
+  }
+
+  object drop {
+    def apply(c: Container)= {
+      commands(pc) = DropV(pc, c)
+      pc += 1
+    }
+  }
+
+  object pickup {
+    def apply(c: Container)= {
+      commands(pc) = PickUpV(pc, c)
+      pc += 1
+    }
+  }
+
+  object eat {
+    def apply(): Unit = {
+      commands(pc) = EatAll(pc, mouth)
+      pc += 1
+    }
+    def apply(x: Int) = {
+      commands(pc) = EatN(pc, x)
+      pc += 1
+    }
+    def apply(c: Container) = {
+      commands(pc) = EatV(pc, c, 1)
+      pc += 1
+    }
+  }
+
+  object clear {
+    def apply(c: Container)= {
+      commands(pc) = ClearV(pc, c)
+      pc += 1
+    }
+  }
+
+  def stop: Unit = {
+    commands(pc) = Exit(pc)
+  }
+
+  def routine(label: String): Unit = {
+    commands(pc) = RoutineS(pc, label)
+    pc += 1
+  }
+
+  def jump(label: String): Unit = {
+    commands(pc) = JumpS(pc, label)
+    pc += 1
+  }
+
+  def saveLeftovers(d: Double): Unit = {
+    commands(pc) = SaveLeftoversN(pc, d)
+    pc += 1
+  }
+
+  // The line "good boy" must be at the end of every program.
+  object good {
+    def boy: Unit = {
+      commands(pc) = End(pc)
+      evaluate(commands.keys.toList.sorted.head)
+    }
+  }
+
+  /*
+  * Runtime evaluator that executes after calling "good boy"
+  */
   private def evaluate(line: Int): Unit = {
+
     commands(line) match {
-      case PrintString(_, referencedRepeat: Container, s: String, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
+      case BarkS(_, s: String, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             print(s)
           }
@@ -209,8 +414,8 @@ class Dog {
         }
         evaluate(line + 1)
 
-      case PromptUser(_, referencedRepeat: Container, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
+      case PromptUser(_, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             mouth += scala.io.StdIn.readInt()
           }
@@ -220,10 +425,10 @@ class Dog {
         }
         evaluate(line + 1)
 
-      case ShowAmt(_, referencedRepeat: Container, explicitRepeat: Int) =>
+      case PrintMouth(_, explicitRepeat: Int, referencedRepeat: Container) =>
         var result = new DecimalFormat("0.###").format(mouth)
-        if (referencedRepeat != null) {
-          for (iter <- 1 to explicitRepeat) {
+        if (referencedRepeat.getVal != 0) {
+          for (iter <- 1 to referencedRepeat.repeat()) {
             print(result)
           }
         } else {
@@ -232,9 +437,9 @@ class Dog {
         }
         evaluate(line + 1)
 
-      case GiveAmt(_, referencedRepeat: Container, explicitRepeat: Int) =>
+      case ClearMouth(_, explicitRepeat: Int, referencedRepeat: Container) =>
         var result = new DecimalFormat("0.###").format(mouth)
-        if (referencedRepeat != null) {
+        if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             print(result)
             mouth = 0
@@ -247,8 +452,8 @@ class Dog {
         }
         evaluate(line + 1)
 
-      case AddAmt(_, referencedRepeat: Container, num: Double, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
+      case FetchN(_, num: Double, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             mouth += num
           }
@@ -258,8 +463,8 @@ class Dog {
         }
         evaluate(line + 1)
 
-      case AddAmtc(_, referencedRepeat: Container, c: Container, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
+      case FetchV(_, c: Container, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             mouth += c.getVal
           }
@@ -269,20 +474,8 @@ class Dog {
         }
         evaluate(line + 1)
 
-      case Modulus(_, referencedRepeat: Container, num: Double, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
-          for (iter <- 1 to referencedRepeat.repeat()) {
-            mouth %= num
-          }
-        } else {
-          for (itr <- 1 to explicitRepeat) {
-            mouth %= num
-          }
-        }
-        evaluate(line + 1)
-
-      case DropAmt(_, referencedRepeat: Container, c: Container, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
+      case DropV(_, c: Container, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             if (c.isInstanceOf[Floor]) {
               c.setVal(mouth)
@@ -307,8 +500,8 @@ class Dog {
         }
         evaluate(line + 1)
 
-      case PickUpAmt(_, referencedRepeat: Container, c: Container, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
+      case PickUpV(_, c: Container, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             mouth += c.getVal
             if (!c.isInstanceOf[Floor]) {
@@ -325,26 +518,8 @@ class Dog {
         }
         evaluate(line + 1)
 
-      case SubAmt(_, referencedRepeat: Container, num: Double, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
-          for (iter <- 1 to referencedRepeat.repeat()) {
-            mouth -= num
-            if (mouth < 0) {
-              // handle error
-            }
-          }
-        } else {
-          for (itr <- 1 to explicitRepeat) {
-            mouth -= num
-            if (mouth < 0) {
-              // handle error
-            }
-          }
-        }
-        evaluate(line + 1)
-
-      case SubAmta(_, referencedRepeat: Container, num: Double, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
+      case EatAll(_, num: Double, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             mouth = 0
           }
@@ -355,8 +530,26 @@ class Dog {
         }
         evaluate(line + 1)
 
-      case SubAmtc(_, referencedRepeat: Container, c: Container, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
+      case EatN(_, num: Double, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
+          for (iter <- 1 to referencedRepeat.repeat()) {
+            mouth -= num
+            if (mouth < 0) {
+              // handle error
+            }
+          }
+        } else {
+          for (itr <- 1 to explicitRepeat) {
+            mouth -= num
+            if (mouth < 0) {
+              // handle error
+            }
+          }
+        }
+        evaluate(line + 1)
+
+      case EatV(_, c: Container, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             mouth -= c.getVal
             if (mouth < 0) {
@@ -373,8 +566,8 @@ class Dog {
         }
         evaluate(line + 1)
 
-      case ClearAmt(_, referencedRepeat: Container, c: Container, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
+      case ClearV(_, c: Container, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             c.setVal(0)
           }
@@ -386,7 +579,7 @@ class Dog {
         evaluate(line + 1)
 
       case Exit(_, referencedRepeat: Container) =>
-        if (referencedRepeat != null) {
+        if (referencedRepeat.getVal != 0) {
           if (referencedRepeat.repeat() > 0) {
             System.exit(0)
           }
@@ -394,16 +587,16 @@ class Dog {
           System.exit(0)
         }
 
-      case Label(_, referencedRepeat: Container, s: String) =>
-        if (referencedRepeat != null && referencedRepeat.repeat() > 0) {
+      case RoutineS(_, s: String, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0 && referencedRepeat.repeat() > 0) {
           labels(s) = line
         } else {
           labels(s) = line
         }
         evaluate(line + 1)
 
-      case Jump(_, referencedRepeat: Container, s: String, explicitRepeat: Int) =>
-        if (referencedRepeat != null) {
+      case JumpS(_, s: String, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
           if (referencedRepeat.repeat() > 0) {
             val newLine = labels(s)
             evaluate(newLine + 1)
@@ -415,312 +608,20 @@ class Dog {
           evaluate(newLine + 1)
         }
 
+      case SaveLeftoversN(_, num: Double, explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
+          for (iter <- 1 to referencedRepeat.repeat()) {
+            mouth %= num
+          }
+        } else {
+          for (itr <- 1 to explicitRepeat) {
+            mouth %= num
+          }
+        }
+        evaluate(line + 1)
+
       case End(_) =>
       case _ =>
     }
   }
-
-  object bark {
-    def apply(line: String): Unit = {
-      commands(pc) = PrintString(pc, null, line)
-      pc += 1
-    }
-  }
-
-  def take = {
-    commands(pc) = PromptUser(pc, null)
-    pc += 1
-  }
-
-  def show: Unit = {
-    commands(pc) = ShowAmt(pc, null)
-    pc += 1
-  }
-
-  def give: Unit = {
-    commands(pc) = GiveAmt(pc, null)
-    pc += 1
-  }
-
-  object fetch {
-    def apply(x: Int) = {
-      commands(pc) = AddAmt(pc, null, x)
-      pc += 1
-    }
-
-    def apply(c: Container) = {
-      commands(pc) = AddAmtc(pc, null, c, 1)
-      pc += 1
-    }
-  }
-
-  def math(d: Double): Unit = {
-    commands(pc) = Modulus(pc, null, d)
-    pc += 1
-  }
-
-  object drop {
-    def apply(c: Container)= {
-      commands(pc) = DropAmt(pc, null, c)
-      pc += 1
-    }
-  }
-
-  object pickup {
-    def apply(c: Container)= {
-      commands(pc) = PickUpAmt(pc, null, c)
-      pc += 1
-    }
-  }
-
-  object eat {
-    def apply(): Unit = {
-      commands(pc) = SubAmta(pc, null, mouth)
-      pc += 1
-    }
-    def apply(x: Int) = {
-      commands(pc) = SubAmt(pc, null, x)
-      pc += 1
-    }
-
-    def apply(c: Container) = {
-      commands(pc) = SubAmtc(pc, null, c, 1)
-      pc += 1
-    }
-  }
-
-
-  object clear {
-    def apply(c: Container)= {
-      commands(pc) = ClearAmt(pc, null, c)
-      pc += 1
-    }
-  }
-
-  def label(label: String): Unit = {
-    commands(pc) = Label(pc, null, label)
-    pc += 1
-  }
-
-  def jump(label: String): Unit = {
-    commands(pc) = Jump(pc, null, label)
-    pc += 1
-  }
-
-  def stop: Unit = {
-    commands(pc) = Exit(pc, null)
-    // No point in incrementing pc if this stops the program.
-  }
-
-
-
-  // The line "good boy" executes the program and cannot be omitted
-  object good {
-    def boy: Unit = {
-      commands(pc) = End(pc)
-      evaluate(commands.keys.toList.sorted.head)
-    }
-  }
-
-
-  // Repetitive ... Not sure of a better way to do it
-  // This doesn't take into account negative numbers, which should execute the command 0 times.
-    /*
-  case class Repeat(num: Int) {
-
-    object bark {
-      def apply(str: String): Unit = {
-        commands(pc) = PrintString(pc, str, num)
-        pc += 1
-        //print("1")
-      }
-    }
-
-    def take() = {
-      commands(pc) = PromptUser(pc, num)
-      pc += 1
-    }
-
-    def show: Unit = {
-      commands(pc) = ShowAmt(pc, num)
-      pc += 1
-    }
-
-    def give: Unit = {
-      commands(pc) = GiveAmt(pc, num)
-      pc += 1
-    }
-
-    def math(d: Double): Unit = {
-      commands(pc) = Modulus(pc, d, num)
-      pc += 1
-    }
-
-    object fetch {
-      def apply(x: Int) = {
-        commands(pc) = AddAmt(pc, x, num)
-        pc += 1
-      }
-
-      def apply(c: Bowl) = {
-        commands(pc) = AddAmtc(pc, c, num)
-        pc += 1
-      }
-    }
-
-    object eat {
-      def apply(x: Int) = {
-        commands(pc) = SubAmt(pc, x, num)
-        pc += 1
-      }
-
-      def apply(c: Bowl) = {
-        commands(pc) = SubAmtc(pc, c, num)
-        pc += 1
-      }
-    }
-
-    def label(label: String): Unit = {
-      commands(pc) = Label(pc, label)
-      pc += 1
-    }
-
-    object jump {
-      def apply(label: String): Unit = {
-        commands(pc) = Jump(pc, label)
-        pc += 1
-      }
-    }
-    /*
-    def jump(label: String): Unit = {
-      commands(pc) = Jump(pc, label)
-      pc += 1
-    }
-    */
-
-  }
-  */
-
-  implicit def numToRepeat(num: Int) = {
-    object bark {
-      def apply(line: String): Unit = {
-        commands(pc) = PrintString(pc, null, line, num)
-        pc += 1
-      }
-    }
-
-    def take = {
-      commands(pc) = PromptUser(pc, null, num)
-      pc += 1
-    }
-
-    def show: Unit = {
-      commands(pc) = ShowAmt(pc, null, num)
-      pc += 1
-    }
-
-    def give: Unit = {
-      commands(pc) = GiveAmt(pc, null, num)
-      pc += 1
-    }
-
-    object fetch {
-      def apply(x: Int) = {
-        commands(pc) = AddAmt(pc, null, x, num)
-        pc += 1
-      }
-
-      def apply(c: Container) = {
-        commands(pc) = AddAmtc(pc, null, c, num)
-        pc += 1
-      }
-    }
-
-    def math(d: Double): Unit = {
-      commands(pc) = Modulus(pc, null, d, num)
-      pc += 1
-    }
-
-    object drop {
-      def apply(c: Container) = {
-        commands(pc) = DropAmt(pc, null, c, num)
-        pc += 1
-      }
-    }
-
-    object pickup {
-      def apply(c: Container) = {
-        commands(pc) = PickUpAmt(pc, null, c, num)
-        pc += 1
-      }
-    }
-
-    object eat {
-      def apply(): Unit = {
-        commands(pc) = SubAmta(pc, null, mouth, num)
-        pc += 1
-      }
-
-      def apply(x: Int) = {
-        commands(pc) = SubAmt(pc, null, x, num)
-        pc += 1
-      }
-
-      def apply(c: Container) = {
-        commands(pc) = SubAmtc(pc, null, c, num)
-        pc += 1
-      }
-    }
-
-
-    object clear {
-      def apply(c: Container) = {
-        commands(pc) = ClearAmt(pc, null, c, num)
-        pc += 1
-      }
-    }
-
-    def label(label: String): Unit = {
-      commands(pc) = Label(pc, null, label)
-      pc += 1
-    }
-
-    def jump(label: String): Unit = {
-      commands(pc) = Jump(pc, null, label, num)
-      pc += 1
-    }
-
-    def stop: Unit = {
-      commands(pc) = Exit(pc, null)
-      // No point in incrementing pc if this stops the program.
-    }
-  }
-
-    /*
-  implicit def varToRepeat(c: Container) = {
-    // NOTE: I'm not sure I implemented this correctly... namely, the case classes part.
-    c match {
-      case Bowl(_, amt) =>
-        if (c.getVal <= 0) {
-          // NOTE: not sure if I should just repeat 0 times or just increment the pc
-          Repeat(0)
-        } else {
-          Repeat(Math.floor(c.getVal).toInt)
-        }
-
-      case Floor(_) =>
-        Repeat(Math.floor(c.getVal).toInt)
-
-      case Safe(_, amt) =>
-        if (c.getVal > 0) {
-          Repeat(1)
-        } else if (c.getVal == 0) {
-          // NOTE: not sure if I should just repeat 0 times or just increment the pc
-          Repeat(0)
-        }
-    }
-  }
-  implicit def funcToRepeat(func: Unit) = Repeat(1)
-  */
-
 }
