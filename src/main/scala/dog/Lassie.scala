@@ -36,7 +36,7 @@ object Lassie extends Dog {
     bark ("/\n\n")
 
     bark ("Enter your name: ")
-    remember()
+    remember
     bark ("\n\nHello ")
     talk
     bark (",\n\n")
@@ -45,11 +45,11 @@ object Lassie extends Dog {
     bark ("Go Lassie, save the day!\n\n")
     85 bark ("=")
     bark ("\n\n")
-    forget()
+    forget
     bark ("Press Enter to continue...")
-    remember()
+    remember
     bark("\n")
-    forget()
+    forget
 
     fetch (3)
     drop (safe0)
@@ -90,7 +90,7 @@ object Lassie extends Dog {
 
     memorize("|")
     7 memorize(" ")
-    talk()
+    talk
     bark ("1")
     forget
     8 memorize(" ")
@@ -98,14 +98,14 @@ object Lassie extends Dog {
     memorize("  ")
     memorize("|")
     7 memorize(" ")
-    talk()
+    talk
     bark ("2")
-    talk()
+    talk
     bark ("3")
     forget
     8 memorize (" ")
     memorize ("|")
-    talk()
+    talk
     forget
 
     fetch (1)
@@ -178,7 +178,7 @@ object Lassie extends Dog {
     bark ("\n\n")
     bark ("Lassie is confronted with three doors, each labeled with a number.\n")
     bark ("Which door should Lassie choose? ")
-    take()
+    take
     85 bark ("=")
     bark ("\n\n")
     eat (1)
@@ -197,7 +197,7 @@ object Lassie extends Dog {
     bark ("Lassie opens door 3 with an air of confidence. She looks forward and sees a house just a little farther " +
       "down the road.\n")
     bark ("She then looks downward and sees herself being engulfed in a room full of molten lava. The dog dies.\n")
-    die()
+    die
     bark("\nYOU LOSE\n")
     jump ("End")
 
@@ -206,14 +206,14 @@ object Lassie extends Dog {
     bark("It is too heavy to move, and she cannot move around it.\n")
     bark ("In the middle of the wall, Lassie sees a keypad and an engraving:\n")
     bark ("\n")
-    eat()
+    eat
     25 bark (" ")
     bark ("%(*)!")
     25 bark (" ")
     bark ("\n")
 
     bark ("You have one guess: ")
-    take()
+    take
     3 bark ("\n")
     saveLeftovers(59801)
     drop (safe2)
@@ -230,7 +230,7 @@ object Lassie extends Dog {
     jump ("End")
 
     routine("Door 1")
-    eat()
+    eat
     fetch (1)
     drop (floor)
     fetch (2)
@@ -258,7 +258,7 @@ object Lassie extends Dog {
     clear (safe3)
     clear (safe4)
 
-    take()
+    take
 
     drop (safe0)
     fetch (safe0)
@@ -272,13 +272,13 @@ object Lassie extends Dog {
       pickup (safe0)
     jump ("Choice")
     routine ("random")
-     eat()
+     eat
      fetch (floor)
     jump ("Choice")
 
     routine ("Choice")
       bark ("Lassie chose choice ")
-      show()
+      show
       bark (".\n")
 
       eat(1)

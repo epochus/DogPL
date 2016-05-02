@@ -43,42 +43,42 @@ class TestSuite extends FlatSpec {
         drop (safe1)
 
         // Store the initial two numbers (1 and 1) into dish1 and dish2, and also display them
-          fetch (1)
+        fetch (1)
         show
         bark (", ")
         drop (bowl1)
-          fetch (1)
+        fetch (1)
         show
         bark (", ")
         drop (bowl2)
-          routine ("loop")
-          // Show the next number
+        routine ("loop")
+        // Show the next number
         fetch (bowl1)
-          fetch (bowl2)
-          show
+        fetch (bowl2)
+        show
         bark (", ")
 
         // Temporarily store result in dish3
-          clear (bowl3)
-          drop (bowl3)
+        clear (bowl3)
+        drop (bowl3)
 
         // Store whatever's in dish2 into dish1, and store the result into dish2
-          clear (bowl1)
-          pickup (bowl2)
-          drop (bowl1)
-          pickup (bowl3)
-          drop (bowl2)
+        clear (bowl1)
+        pickup (bowl2)
+        drop (bowl1)
+        pickup (bowl3)
+        drop (bowl2)
 
         // Decrement plate1
         pickup (safe1)
-          eat (1)
+        eat (1)
         drop (safe1)
-          safe1 jump ("loop")
+        safe1 jump ("loop")
 
         // Show the last number outside the loop (otherwise a comma would be printed after it)
         fetch (bowl1)
-          fetch (bowl2)
-          show
+        fetch (bowl2)
+        show
 
         good boy
       }
