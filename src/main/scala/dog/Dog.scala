@@ -31,6 +31,7 @@ class Dog {
   case class Count(explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
   case class GetMax(pos: Int, c1: Container, c2: Container, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
   case class GetMin(pos: Int, c1: Container, c2: Container, explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
+  case class Remember(explicitRepeat: Int = 1, referencedRepeat: Container = Empty()) extends DogLine
   case class End(num: Int) extends DogLine
 
   var pc = 0
@@ -189,6 +190,10 @@ class Dog {
       pc += 1
     }
 
+    def remember() = {
+      commands(pc) = Remember(0, this)
+      pc += 1
+    }
   }
 
   case class Floor(arrayBuffer: mutable.ArrayBuffer[Double]) extends Container {
@@ -203,7 +208,7 @@ class Dog {
       val returnVal = arrayBuffer(index)
 
       if (returnVal == 0) {
-        (random.nextDouble() * 10) + 1
+        random.nextDouble()
       }
 
       arrayBuffer -= returnVal
@@ -353,6 +358,7 @@ class Dog {
       commands(pc) = Count(num)
       pc += 1
     }
+
     def getmax(c1: Container, c2: Container): Unit = {
       commands(pc) = GetMax(pc, c1, c2, num)
       pc += 1
@@ -360,6 +366,11 @@ class Dog {
 
     def getmin(c1: Container, c2: Container): Unit = {
       commands(pc) = GetMin(pc, c1, c2, num)
+      pc += 1
+    }
+
+    def remember() = {
+      commands(pc) = Remember(num)
       pc += 1
     }
   }
@@ -384,7 +395,7 @@ class Dog {
     pc += 1
   }
 
-  def give: Unit = {
+  def give(): Unit = {
     commands(pc) = ClearMouth(pc)
     pc += 1
   }
@@ -475,12 +486,19 @@ class Dog {
     commands(pc) = Count()
     pc += 1
   }
+
   def getmax(c1: Container, c2: Container): Unit = {
     commands(pc) = GetMax(pc, c1, c2)
     pc += 1
   }
+
   def getmin(c1: Container, c2: Container): Unit = {
     commands(pc) = GetMin(pc, c1, c2)
+    pc += 1
+  }
+
+  def remember() = {
+    commands(pc) = Remember()
     pc += 1
   }
 
@@ -488,6 +506,14 @@ class Dog {
   object good {
     def boy: Unit = {
       commands(pc) = End(pc)
+      for (coms <- commands.keysIterator) {
+        (commands(coms)) match {
+          case RoutineS(pc: Int, s: String, _) =>
+            labels(s) = pc
+
+          case _ =>
+        }
+      }
       evaluate(commands.keys.toList.sorted.head)
     }
   }
@@ -818,6 +844,18 @@ class Dog {
             }
         }
         evaluate(line + 1)
+
+      case Remember(explicitRepeat: Int, referencedRepeat: Container) =>
+        if (referencedRepeat.getVal != 0) {
+          for (iter <- 1 to referencedRepeat.repeat()) {
+            string.append(scala.io.StdIn.readLine())
+          }
+        } else {
+          for (iter <- 1 to explicitRepeat) {
+            string.append(scala.io.StdIn.readLine())
+          }
+        }
+
 
       case End(_) =>
       case _ =>

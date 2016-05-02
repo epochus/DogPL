@@ -5,12 +5,67 @@ package dog
   */
 object Demo extends Dog {
 
-  def main(args: Array[String]) {
-    fetch (5)
-    bowl1 show()
-    //fetch (bowl1)
-    //bowl1 show()
-    //bark("\n")
+  def main(args: Array[String]): Unit = {
+    bark("Please enter two numbers:\n")
+    take()
+    drop(bowl0)
+    take()
+    drop(bowl1)
+    pickup(bowl0)
+    show()
+    drop(bowl0)
+    bark(" times ")
+    pickup(bowl1)
+    show()
+    drop(bowl1)
+    bark(" equals ")
+    bowl1 fetch (bowl0)
+    show()
+    drop(bowl2)
+    fetch(50)
+    eat(bowl2)
+    drop(safe0)
+    safe0 jump("smaller")
+    jump("larger")
+    routine("smaller")
+    bark("\nWow, this number is smaller than 50!")
+    jump ("end")
+    routine("larger")
+    bark("\nWow, this number is larger than 50!")
+    routine("end")
+
+    good boy
+  }
+
+  def conditionalBranching(): Unit = {
+    bark("Please enter two numbers:\n")
+    take()
+    drop(bowl0)
+    take()
+    drop(bowl1)
+    pickup(bowl0)
+    show()
+    drop(bowl0)
+    bark(" times ")
+    pickup(bowl1)
+    show()
+    drop(bowl1)
+    bark(" equals ")
+    bowl1 fetch (bowl0)
+    show()
+    drop(bowl2)
+    fetch(50)
+    eat(bowl2)
+    drop(safe0)
+    safe0 jump("smaller")
+    jump("larger")
+    routine("smaller")
+    bark("\nWow, this number is smaller than 50!")
+    jump ("end")
+    routine("larger")
+    bark("\nWow, this number is larger than 50!")
+    routine("end")
+
     good boy
   }
 /*
