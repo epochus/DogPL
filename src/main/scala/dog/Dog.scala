@@ -1,6 +1,5 @@
 package dog
 
-import scala.StringBuilder
 import scala.collection.mutable
 import java.text.DecimalFormat
 
@@ -180,12 +179,12 @@ class Dog {
       commands(pc) = Count(0, this)
       pc += 1
     }
-    def getmax(c1: Container, c2: Container): Unit = {
+    def getMax(c1: Container, c2: Container) = {
       commands(pc) = GetMax(pc, c1, c2, 1, this)
       pc += 1
     }
    
-    def getmin(c1: Container, c2: Container): Unit = {
+    def getMin(c1: Container, c2: Container) = {
       commands(pc) = GetMin(pc, c1, c2, 1, this)
       pc += 1
     }
@@ -359,12 +358,12 @@ class Dog {
       pc += 1
     }
 
-    def getmax(c1: Container, c2: Container): Unit = {
+    def getMax(c1: Container, c2: Container): Unit = {
       commands(pc) = GetMax(pc, c1, c2, num)
       pc += 1
     }
 
-    def getmin(c1: Container, c2: Container): Unit = {
+    def getMin(c1: Container, c2: Container): Unit = {
       commands(pc) = GetMin(pc, c1, c2, num)
       pc += 1
     }
@@ -448,8 +447,9 @@ class Dog {
     }
   }
 
-  def stop: Unit = {
+  def die(): Unit = {
     commands(pc) = Exit(pc)
+    pc += 1
   }
 
   def routine(label: String): Unit = {
@@ -487,12 +487,12 @@ class Dog {
     pc += 1
   }
 
-  def getmax(c1: Container, c2: Container): Unit = {
+  def getMax(c1: Container, c2: Container): Unit = {
     commands(pc) = GetMax(pc, c1, c2)
     pc += 1
   }
 
-  def getmin(c1: Container, c2: Container): Unit = {
+  def getMin(c1: Container, c2: Container): Unit = {
     commands(pc) = GetMin(pc, c1, c2)
     pc += 1
   }
@@ -655,16 +655,10 @@ class Dog {
         if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             mouth -= num
-            if (mouth < 0) {
-              // handle error
-            }
           }
         } else {
           for (itr <- 1 to explicitRepeat) {
             mouth -= num
-            if (mouth < 0) {
-              // handle error
-            }
           }
         }
         evaluate(line + 1)
@@ -673,16 +667,10 @@ class Dog {
         if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
             mouth -= c.getVal
-            if (mouth < 0) {
-              // handle error
-            }
           }
         } else {
           for (itr <- 1 to explicitRepeat) {
             mouth -= c.getVal
-            if (mouth < 0) {
-              // handle error
-            }
           }
         }
         evaluate(line + 1)
@@ -709,7 +697,7 @@ class Dog {
         }
 
       case RoutineS(_, s: String, referencedRepeat: Container) =>
-        if (referencedRepeat.getVal != 0 && referencedRepeat.repeat() > 0) {
+        if (referencedRepeat.repeat() > 0) {
           labels(s) = line
         } else {
           labels(s) = line
@@ -855,7 +843,7 @@ class Dog {
             string.append(scala.io.StdIn.readLine())
           }
         }
-
+        evaluate(line + 1)
 
       case End(_) =>
       case _ =>
