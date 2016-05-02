@@ -538,11 +538,11 @@ class Dog {
       case PromptUser(_, explicitRepeat: Int, referencedRepeat: Container) =>
         if (referencedRepeat.getVal != 0) {
           for (iter <- 1 to referencedRepeat.repeat()) {
-            mouth += scala.io.StdIn.readInt()
+            mouth += scala.io.StdIn.readDouble()
           }
         } else {
           for (itr <- 1 to explicitRepeat)
-            mouth += scala.io.StdIn.readInt()
+            mouth += scala.io.StdIn.readDouble()
         }
         evaluate(line + 1)
 
